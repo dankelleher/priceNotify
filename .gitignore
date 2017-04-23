@@ -1,0 +1,18 @@
+# IDE
+**/.idea
+
+# dependencies
+**/node_modules
+
+# testing
+*/coverage
+
+# production
+**/dist
+
+# misc
+.DS_Store
+.env
+*/npm-debug.log
+/backend/.serverless
+/frontend/build/
