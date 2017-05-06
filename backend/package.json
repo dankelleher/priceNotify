@@ -4,15 +4,19 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "pretest": "rm -r dist/test || TRUE",
-    "test": "webpack --config webpack.test.config.js && mocha dist/test/**/*.js",
+    "pretest": "(rm -r dist/test || TRUE) && webpack --config webpack.test.config.js && yarn run init-local-db",
+    "test": "mocha dist/test/*.js",
     "remote-test": "newman run test/integration.postman_collection",
     "deploy": "serverless deploy",
-    "lint": "eslint src/**/*.js"
+    "lint": "eslint src/**/*.js",
+    "init-local-db": "docker-compose -f docker/docker-compose.yml up -d"
   },
   "dependencies": {
+    "aws-sdk": "^2.46.0",
     "babel-runtime": "^6.23.0",
     "eslint": "^3.19.0",
+    "node-fetch": "^1.6.3",
+    "ramda": "^0.23.0",
     "serverless": "^1.11.0"
   },
   "devDependencies": {

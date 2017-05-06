@@ -2,7 +2,7 @@ const nodeExternals = require('webpack-node-externals');
 const glob_entries = require('webpack-glob-entries');
 
 module.exports = {
-  entry: glob_entries('./test/**/*.js'),
+  entry: glob_entries('./test/fixtures/**/*.js'),
   target: 'node',
   externals: [nodeExternals()],
   output: {

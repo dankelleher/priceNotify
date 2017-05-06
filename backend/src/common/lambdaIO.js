@@ -29,7 +29,7 @@ export function parseBody(event) {
   return JSON.parse(event.body);
 }
 
-function successfulResponse() {
+export function successfulResponse() {
   return {
     statusCode: 200,
     headers: {

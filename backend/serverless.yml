@@ -6,10 +6,50 @@ plugins:
 provider:
   name: aws
   runtime: nodejs4.3
+  profile: personal
 
 functions:
-  hello:
-    handler: handler.hello
+  registerAlert:
+    handler: registerAlertHandler.register
+    events:
+      - http:
+        path: alert
+        method: POST
 
 custom:
   webpackIncludeModules: true
+
+resources:
+  Resources:
+    alertsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Alert
+        AttributeDefinitions:
+          - AttributeName: mobileNo
+            AttributeType: S
+          - AttributeName: price
+            AttributeType: N
+        KeySchema:
+          - AttributeName: mobileNo
+            KeyType: HASH
+          - AttributeName: price
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
+    DynamoDBIamPolicy:
+      Type: AWS::IAM::Policy
+      DependsOn: alertsTable
+      Properties:
+        PolicyName: lambda-dynamodb
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+              Resource: arn:aws:dynamodb:*:*:table/Alert
+        Roles:
+          - Ref: IamRoleLambdaExecution

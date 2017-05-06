@@ -1,0 +1,5 @@
+db:
+  image: "dwmkerr/dynamodb"
+  ports:
+    - 8000:8000
+  command: -inMemory
