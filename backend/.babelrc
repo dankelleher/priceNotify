@@ -1,6 +1,7 @@
 {
   "plugins": [
-    "transform-runtime"
+    "transform-runtime",
+    "rewire"
   ],
   "presets": [
     "es2015",

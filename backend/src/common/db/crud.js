@@ -5,39 +5,40 @@ import database from './database'
 
 const client = database().client;
 
-const tableName = "Alert";
+export default (tableName) => ({
 
-export const create = (obj, cb) => {
-  console.log("Adding a new item...");
+  create: (obj, cb) => {
+    console.log("Adding a new item...");
 
-  return client.put(
-    {
-      TableName: tableName,
-      Item: obj
-    }, cb);
-};
+    return client.put(
+      {
+        TableName: tableName,
+        Item: obj
+      }, cb);
+  },
 
-export const read = (params, cb) => {
-  return client.get(
-    {
-      TableName: tableName,
-      Key: params
-    }, cb);
-};
+  read: (params, cb) => {
+    return client.get(
+      {
+        TableName: tableName,
+        Key: params
+      }, cb);
+  },
 
-export const find = (params, cb) => {
-  return client.scan(
-    {
-      TableName: tableName,
-      ...params
-    }, cb);
-};
+  find: (params, cb) => {
+    return client.scan(
+      {
+        TableName: tableName,
+        ...params
+      }, cb);
+  },
 
-export const update = (obj) => {
-  // TODO
-};
+  update: (obj) => {
+    // TODO
+  },
 
-export const remove = (params) => {
-  // TODO
-};
+  remove: (params) => {
+    // TODO
+  }
+})
 

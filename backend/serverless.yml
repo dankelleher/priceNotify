@@ -2,22 +2,44 @@ service: price-notify
 
 plugins:
   - serverless-webpack
+  - serverless-secrets-plugin
 
 provider:
   name: aws
   runtime: nodejs4.3
   profile: personal
+  stage: dev
+  iamRoleStatements:
+      -  Effect: 'Allow'
+         Action:
+           - 'SNS:Publish'
+         Resource: '*'
 
 functions:
   registerAlert:
     handler: registerAlertHandler.register
     events:
       - http:
-        path: alert
-        method: POST
+          path: alert
+          method: POST
+  sendAlert:
+    handler: sendAlertHandler.send
+    events:
+      - sns: ${self:custom.SNS_TOPIC}
+    environment:
+      ACCESS_KEY: ${self:custom.secrets.PLIVO_ACCESS_KEY}
+      ACCESS_SECRET: ${self:custom.secrets.PLIVO_ACCESS_SECRET}
+      PLIVO_URL_TEMPLATE: https://api.plivo.com/v1/Account/${self:custom.secrets.PLIVO_ACCESS_KEY}/Message/
+  checkPrice:
+    handler: checkPriceHandler.check
+    environment:
+      PRICE_URL: https://blockchain.info/ticker
+      SNS_ARN: arn:aws:sns:us-east-1:710542550028:${self:custom.SNS_TOPIC}
 
 custom:
   webpackIncludeModules: true
+  secrets: ${file(secrets.${opt:stage, self:provider.stage}.yml)}
+  SNS_TOPIC: priceNotify
 
 resources:
   Resources:
@@ -38,9 +60,24 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 10
           WriteCapacityUnits: 10
+    priceTable:
+          Type: AWS::DynamoDB::Table
+          Properties:
+            TableName: Price
+            AttributeDefinitions:
+              - AttributeName: currency
+                AttributeType: S
+            KeySchema:
+              - AttributeName: currency
+                KeyType: HASH
+            ProvisionedThroughput:
+              ReadCapacityUnits: 10
+              WriteCapacityUnits: 10
     DynamoDBIamPolicy:
       Type: AWS::IAM::Policy
-      DependsOn: alertsTable
+      DependsOn:
+        - alertsTable
+        - priceTable
       Properties:
         PolicyName: lambda-dynamodb
         PolicyDocument:
@@ -50,6 +87,9 @@ resources:
               Action:
                 - dynamodb:GetItem
                 - dynamodb:PutItem
-              Resource: arn:aws:dynamodb:*:*:table/Alert
+                - dynamodb:Scan
+              Resource:
+                - arn:aws:dynamodb:*:*:table/Alert
+                - arn:aws:dynamodb:*:*:table/Price
         Roles:
           - Ref: IamRoleLambdaExecution

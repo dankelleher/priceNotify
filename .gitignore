@@ -15,4 +15,7 @@
 .env
 */npm-debug.log
 /backend/.serverless
+/backend/secrets.*.yml
+!/backend/secrets.*.yml.encrypted
 /frontend/build/
+/backend/yarn-error.log

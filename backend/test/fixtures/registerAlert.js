@@ -1,38 +1,16 @@
 import {expect} from 'chai'
 
 import database from '../../src/common/db/database';
-import {createSchema, tearDownSchema} from '../support/dbSupport'
+import {createSchema, tearDownSchema} from '../support/dbSupport';
+import {toRegisterAlertEvent, cbToPromise} from '../support/testSupport';
 import {register} from '../../src/registerAlert/registerAlertHandler';
 
-console.log('Creating client');
 const client = database().client;
 
 describe('registerAlert', function() {
 
   beforeEach(createSchema);
   afterEach(tearDownSchema);
-
-  const toEvent = (mobileNo, price) => {
-    return {
-      body: JSON.stringify({mobileNo, price})
-    };
-  };
-
-  const cbToPromise = (f) => {
-    return (...args) => {
-      return new Promise((resolve, reject) => {
-        const cb = (err, res) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res);
-          }
-        };
-
-        f(...args, cb);
-      });
-    };
-  };
 
   const registerPromise = cbToPromise(register);
 
@@ -53,7 +31,7 @@ describe('registerAlert', function() {
 
   it('should register an alert for a given price', async function() {
     const price = 123;
-    await registerPromise(toEvent(mobileNo, price), null);
+    await registerPromise(toRegisterAlertEvent(mobileNo, price), null);
 
     const savedAlerts = await getByMobileNo(mobileNo);
 
@@ -65,8 +43,8 @@ describe('registerAlert', function() {
     const price1 = 123;
     const price2 = 456;
 
-    await registerPromise(toEvent(mobileNo, price1), null);
-    await registerPromise(toEvent(mobileNo, price2), null);
+    await registerPromise(toRegisterAlertEvent(mobileNo, price1), null);
+    await registerPromise(toRegisterAlertEvent(mobileNo, price2), null);
 
     const savedAlerts = await getByMobileNo(mobileNo);
 
