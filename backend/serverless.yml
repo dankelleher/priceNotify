@@ -35,6 +35,8 @@ functions:
     environment:
       PRICE_URL: https://blockchain.info/ticker
       SNS_ARN: arn:aws:sns:us-east-1:710542550028:${self:custom.SNS_TOPIC}
+    events:
+      - schedule: rate(1 hour)
 
 custom:
   webpackIncludeModules: true

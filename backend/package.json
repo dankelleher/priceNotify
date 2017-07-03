@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "pretest": "(rm -r dist/test || TRUE) && webpack --config webpack.test.config.js && yarn run init-local-db",
-    "test": "PLIVO_URL_TEMPLATE=ABC mocha dist/test/*.js",
+    "test": "PLIVO_URL_TEMPLATE=ABC PRICE_URL=DEF SNS_ARN=GHI mocha dist/test/*.js",
     "remote-test": "newman run test/integration.postman_collection",
     "deploy": "serverless deploy --stage dev",
     "lint": "eslint src/**/*.js",

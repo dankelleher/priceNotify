@@ -26,6 +26,7 @@ describe('sendAlert', function() {
 
   afterEach(tearDownSchema);
 
+  const toSNSEvent = (message) => ({Records: [{Sns: {Message: JSON.stringify(message)}}]});
   const registerPromise = cbToPromise(register);
   const sendPromise = cbToPromise(send);
 
@@ -41,7 +42,7 @@ describe('sendAlert', function() {
   it('should send an SMS for a registered alert if the price is equal', async function () {
     sendSMSStub.returns(Promise.resolve("SMS Sent"));
 
-    await sendPromise({lastPrice, price: alertPrice}, null);
+    await sendPromise(toSNSEvent({lastPrice, price: alertPrice}), null);
 
     expect(sendSMSStub.calledOnce).to.be.true;
   });
@@ -49,7 +50,7 @@ describe('sendAlert', function() {
   it('should send an SMS for a registered alert if the alert price is between the last and current price', async function () {
     sendSMSStub.returns(Promise.resolve("SMS Sent"));
 
-    await sendPromise({lastPrice, price: currentPrice}, null);
+    await sendPromise(toSNSEvent({lastPrice, price: currentPrice}), null);
 
     expect(sendSMSStub.calledOnce).to.be.true;
   });
@@ -59,7 +60,7 @@ describe('sendAlert', function() {
 
     const minorPriceIncrease = lastPrice + 1;
 
-    await sendPromise({lastPrice, price: minorPriceIncrease}, null);
+    await sendPromise(toSNSEvent({lastPrice, price: minorPriceIncrease}), null);
 
     expect(sendSMSStub.calledOnce).to.be.false;
   });
@@ -67,7 +68,7 @@ describe('sendAlert', function() {
   it('should fail if an SMS fails to send', async function () {
     sendSMSStub.throws(Error);
 
-    return sendPromise({lastPrice, price: currentPrice}, null).should.be.rejected;
+    return sendPromise(toSNSEvent({lastPrice, price: currentPrice}), null).should.be.rejected;
   });
 
   it('should send the other SMSes if one fails', async function () {
@@ -79,7 +80,7 @@ describe('sendAlert', function() {
     sendSMSStub.onCall(1).returns(Promise.resolve("SMS Sent"));
     sendSMSStub.onCall(2).returns(Promise.resolve("SMS Sent"));
 
-    const sendPromiseResult = sendPromise({lastPrice, price: currentPrice}, null);
+    const sendPromiseResult = sendPromise(toSNSEvent({lastPrice, price: currentPrice}), null);
 
     await sendPromiseResult.should.be.rejected;
 

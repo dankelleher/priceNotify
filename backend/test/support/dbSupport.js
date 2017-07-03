@@ -24,10 +24,30 @@ const alertTable = {
   }
 };
 
+const priceTable = {
+  TableName : 'Price',
+  KeySchema: [
+    { AttributeName: 'currency', KeyType: 'HASH'},  //Partition key
+  ],
+  AttributeDefinitions: [
+    { AttributeName: 'currency', AttributeType: 'S' },
+  ],
+  ProvisionedThroughput: {
+    ReadCapacityUnits: 10,
+    WriteCapacityUnits: 10
+  }
+};
+
+const tables = [alertTable, priceTable];
+
+const createTablePromise = table => db.createTable(table).promise();
+const deleteTablePromise = table => db.deleteTable({TableName: table.TableName}).promise();
+
+
 export const createSchema = () => {
-  return db.createTable(alertTable).promise();
+  return Promise.all(tables.map(createTablePromise));
 };
 
 export const tearDownSchema = () => {
-  return db.deleteTable({TableName: alertTable.TableName}).promise();
+  return Promise.all(tables.map(deleteTablePromise));
 };
